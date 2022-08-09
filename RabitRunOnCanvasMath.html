@@ -1,0 +1,209 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    
+    <title></title>
+    <meta name = "viewport" content = "width = device-width, initial-scale = 1" />
+    
+    <style>
+        body {
+            background:url(/Image/back.jpg) no-repeat center center fixed;
+        }
+        canvas {
+            color:white;
+            cursor:pointer;
+        }
+        .panel {
+            margin-top:8%;
+            background: rgba(255, 255, 255, 0.6);
+        }
+        .text-danger {
+            font-family:Buxton Sketch;
+        }
+        .sign {
+            font-size:40px;
+        }
+        .panel-body {
+            overflow:hidden;
+        }
+        .can-container {
+           overflow:hidden;
+           border:1px solid black;
+           background-color:#fff;
+        } 
+        
+        </style>
+
+    <link href="css/custom.css" rel="stylesheet" />
+</head>
+<!--<body onload="drawNumberLine(50, 150, 400)">-->
+<body>
+    <center><h1>Multiplication On Number Line</h1></center>
+    <div class="can-container">
+     <canvas id="mycanvas" class="col-xs-12 col-md-12" width="1270" height="300"  ></canvas>    
+    </div>
+    <div class="container buttons">
+        <input type="text" id="stepBy" class=" form-control" placeholder="Multiplicand" />
+        <span class="sign">*</span>
+        <input type="text" id="steps"   class=" form-control" placeholder="Multiplier" />
+        <button type="submit" id="btnAns" class="btn btn-primary" >MULTIPLY</button>
+    </div>
+   
+    
+        
+        
+    
+    <img src="image/rabit.png" style="display:none;" id="rabit" width="50" height="50" />
+    <script src="js/jquery-3.2.1.min.js"></script>
+    <script src="js/jquery-ui.js"></script>
+    <script src="js/bootstrap.js"></script>
+    <script>
+        function jumpObject(x, stepBy, steps, currentstep, ctx, canMargin) {
+
+            //var rabit = document.getElementById("rabit");
+            //var canvas = document.getElementById("mycanvas");
+            //var ctx = canvas.getContext("2d");
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(x, 150); //Start position
+            ctx.setLineDash([5]);
+            var rabitX = x - 10//X Position of rabit
+            //Clearing rabit at top position
+            //Drawing dotted line and step number on the top
+            ctx.clearRect(rabitX - ((stepBy * 50) / 2), 60, 30, 30);
+            if (currentstep > 1) {
+                ctx.bezierCurveTo(x, 60, x - (stepBy * 50), 60, x - (stepBy * 50), 150);//Drawing curve for this step
+                ctx.stroke();
+                ctx.setLineDash([0]);
+                ctx.font = "13px Times New Roman";
+                ctx.strokeText(currentstep - 1, x - (25 * stepBy), 70);
+            }
+           
+            //alert(canMargin + " width"+ ctx.canvas.width);
+            //alert("X" + x+ "canMargin " + canMargin);
+            
+            //Drawing rabit on the bottom position
+            ctx.drawImage(rabit, rabitX, 110, 30, 30);
+            if (steps > 0) {
+                var cx1 = x + (stepBy * 50); //Stop point of current step
+                rabitX += (stepBy * 50) / 2;
+
+                x = cx1; //
+                if (x > canMargin) {
+                    //alert("Can width: " + ctx.canvas.width + " Margin" + canMargin + " X" + x);
+                    var leftMargin;
+                    if ((ctx.canvas.width - canMargin) < canMargin)
+                    {
+                        var previousMargin = ctx.canvas.style.marginLeft.match(/\d+/); 
+                        leftMargin = (ctx.canvas.width - canMargin) + Number(previousMargin);
+                        //alert(leftMargin);
+                        ctx.canvas.style.marginLeft = -leftMargin + "px";
+                        canMargin += leftMargin + 50;
+                        
+                    }
+                    else if ((ctx.canvas.width - canMargin) >= canMargin)
+                    {
+                        var previousMargin = ctx.canvas.style.marginLeft.match(/\d+/); 
+                        //leftMargin = ((canMargin - (stepBy *50)) - 200)+ Number(previousMargin);
+                        leftMargin = (canMargin - (stepBy* 50) -200) + Number(previousMargin);
+                        ctx.canvas.style.marginLeft = -leftMargin + "px";
+                        canMargin += leftMargin;
+                        alert(canMargin)
+                    }
+                    
+                }
+                steps -= 1; //substracting one step from steps to be jumped
+                currentstep += 1;
+                setTimeout(function () {
+                    //Clearing bottom area
+                    //Drawing rabit on top
+                    ctx.clearRect((rabitX - ((stepBy * 50) / 2)) + 6, 110, 30, 30);
+                    ctx.drawImage(rabit, rabitX, 60, 30, 30);
+                    setTimeout(function () { window.requestAnimationFrame(jumpObject(x, stepBy, steps, currentstep, ctx, canMargin)) }, 450);
+                }, 200);
+            }
+            else if (steps == 0) {
+                //Drawing answer
+                ctx.font = "25px Buxton Sketch";
+                var ans = (x - 50) / 50;
+                ctx.fillStyle = "#D9534F";
+                ctx.fillText("ANSWER = " + ans, x, 250);
+            }
+        }
+        function drawNumberLine(x, y, length, ctx) {
+
+
+            if (x == 50) {
+
+                if (isNaN(document.getElementById("stepBy").value) || isNaN(document.getElementById("steps").value)) {
+                    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                    alert("Please enter valid input");
+                    return false;
+                }
+                else if (document.getElementById("stepBy").value.length == 0 || document.getElementById("steps").value.length == 0) {
+                    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                    alert("Both fields are complusory.");
+                    return false;
+                }
+                ctx.canvas.style.marginLeft = 0;
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            }
+            ctx.lineWidth = 2;
+            var num = (length / 50);
+            if (x <= length) {
+
+                ctx.beginPath(); // Starts new instance or new line
+                ctx.moveTo(x, y - 5); //Move to means starting point cordinates of line.
+                ctx.lineTo(x, y + 5);
+                ctx.stroke(); //Draws the line
+                ctx.font = "15px Times New Roman";
+                ctx.strokeText((x / 50) - 1, x - 5, y + 20); //Drawing number as text
+                x += 50;
+                ctx.beginPath(); // Starts new instance or new line
+                ctx.moveTo(50, 150); //Move to means starting point cordinates of line.
+                ctx.lineTo(x, y); // Line to meast end point cordinates of line
+                ctx.stroke(); //Draws the line
+
+                setTimeout(function () { window.requestAnimationFrame(drawNumberLine(x, y, length, ctx)) }, 30);
+            }
+                //Drawing last number on the line
+            else if (x > length) {
+                //alert("X: " + x + " Lenght : " + length);
+                ctx.beginPath(); // Starts new instance or new line
+                ctx.moveTo(x, y - 5); //Move to means starting point cordinates of line.
+                ctx.lineTo(x, y + 5);
+                ctx.stroke(); //Draws the line
+                ctx.font = "15px Times New Roman";
+                ctx.strokeText((x / 50) - 1, x - 5, y + 20); //Drawing number as text
+                var stepBy = document.getElementById("stepBy").value;
+                var steps = document.getElementById("steps").value;
+                jumpObject(50, stepBy, steps, 1, ctx, 1250);
+                ctx.setLineDash([0]);
+            }
+        }
+        function scrollCanEnd(event) {
+           
+            alert("dragging" + event.pageX);
+        }
+        </script>
+        <script>
+            $("#btnAns").click(function () {
+                var canvas = document.getElementById("mycanvas");
+                var ctx = canvas.getContext("2d");
+                var length = (document.getElementById('stepBy').value * document.getElementById('steps').value * 50) + 150;
+                if (length < 1250) {
+                    ctx.canvas.width = 1250 + 100;
+                }
+                else {
+                    ctx.canvas.width = length + 100;
+                }
+                drawNumberLine(50, 150, length, ctx);
+            });
+            var start, stop;
+            $("#mycanvas").draggable({
+                axis: "x",
+            })
+            </script>
+    
+</body>
+</html>

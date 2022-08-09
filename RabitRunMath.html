@@ -1,0 +1,288 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title> Multiplication Game</title>
+    <meta name="viewport" content="width = device-width, initial-scale = 1" />
+
+    <link href="css/custom.css" rel="stylesheet" />
+    <style>
+        body {
+            overflow-x: hidden;
+            overflow-y: hidden;
+        }
+
+        .content-box {
+            overflow-x: hidden;
+        }
+
+        #back1 {
+            left: 0%;
+        }
+
+        #back2 {
+            left: 99%;
+        }
+
+        .direction {
+            width: 4%;
+            height: 40%;
+            top: 60%;
+        }
+
+        .contents {
+            overflow-x: scroll;
+        }
+
+        .num {
+            top: 80%;
+            color:#C2E1C2;
+        }
+
+        .bricks {
+            height: 34%;
+            top: 72.4%;
+        }
+
+        .rabit {
+            top: 74%;
+        }
+
+        .arc {
+            position: absolute;
+            top: 60%;
+            height: 20%;
+        }
+
+        .step {
+            position: absolute;
+            top: 55%;
+            font-size: 130%;
+            color: maroon;
+        }
+
+        .can {
+            position: absolute;
+            top: 60%;
+            width: 20%;
+            height: 20%;
+        }
+
+        .svg {
+            position: absolute;
+            top: 59.5%;
+            left: 4.3%;
+        }
+        .total {
+            top:35%;
+        }
+        /*
+        .svg1 {
+            position: absolute;
+            top: 58.5%;
+            left: 34.3%;
+            border: 2px solid black;
+        }
+
+        .svg2 {
+            position: absolute;
+            top: 58.5%;
+            left: 64.3%;
+            border: 2px solid black;
+        }*/
+        .content-box {
+            overflow-x:scroll;
+            height:auto;
+            width:auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="content-box">
+        <img src="image/cloud4.jpg" class="back-img" id="back1" />
+        <img src="image/cloud4.jpg" class="back-img" id="back2" />
+
+        <span class="total"></span>
+        <div class="contents">
+            
+            <img src="image/rabit.png" class="rabit" />
+            <div class="wall" id="mywall">
+
+
+                <!--<div class="curve"></div>-->
+            </div>
+            
+        </div>
+    </div>
+    <div class="form">
+        <input type="text" class="txt " id="txtMultiplicand" placeholder="Mulitiplicand" /><br />
+        <span class="sign">*</span><br />
+        <input type="text" class="txt " id="txtMultiplier" placeholder="Mulitiplier" /><br />
+        <button class="btn btn-primary" id="btnMultiply">MULTIPLY</button>
+    </div>
+    <audio id="jumpAudio">
+        <source src="image/bounce.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="completed">
+        <source src="image/complete.mp3" type="audio/mpeg">
+    </audio>
+    <script src="js/jquery-3.2.1.min.js"></script>
+    <script src="js/js1/jquery-ui.js"></script>
+    <script src="js/jquery.path.js"></script>
+    <script src="js/jquery-ui.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            //scrollBack(1, 98, "scroll");
+        });
+        function stopScroll() {
+
+        }
+
+
+        function myAni(i, width, left, multiplicand, multiplier, srNumber, svgLeft, leftNum) {
+            if (multiplier >= 1) {
+                var myleft = left;
+                var start = (i == 1) ? 0 : 1;
+
+                for (var j = start; j <= multiplicand; j++) {
+
+                    //Creating new wall
+                    var newWall = $('<img />', {
+                        id: 'wall' + srNumber,
+                        class: 'bricks',
+                        src: 'image/fenceline3.png',
+                        width: 10 + '%'
+                    })
+
+                    $(".wall").append(newWall);
+                    $('#' + 'wall' + srNumber).css("left", (myleft - 4.3) + '%');
+
+                    //Printing numbers
+                    //alert(srNumber);
+                    var newNum = "<span class='num' id='num" + srNumber + "'>" + srNumber + "</span>";
+                    $(".wall").append(newNum);
+
+                    $('#num' + srNumber).css("left", (myleft - .3) + '%').fadeIn(1000);
+
+                    myleft += 10;
+                    srNumber += 1;
+
+                }
+                //Scroll to left if required
+                var nextJump = left + (multiplicand * 10) + 4.3;
+                if (nextJump > 110) {
+
+                    $(".rabit, .bricks, .num, .arc, .step, .svg").animate({ left: '-=' + (((multiplicand) * 10) + 4.3) + '%' }, 500);
+                    left -= (((multiplicand ) * 10) + 4.3);
+                    svgLeft -= (((multiplicand) * 10) + 4.3);
+                }
+
+                //Jumping rabit
+
+                var aud = document.getElementById("jumpAudio");
+                var half = (((multiplicand) * 10) / 2);
+                //alert(half);
+                if (i == 1) {
+                    $(".rabit").css("left", "3.3%");
+                }
+                //var half = (multiplicand / 2);
+                $(".rabit").animate({ left: '+=' + half + '%', top: '-=' + half + '%' }, 500);
+
+                $(".rabit").animate({ left: '+=' + half + '%', top: '+=' + half + '%' }, 500, function () {
+                    //Print total
+                    $(".total").fadeIn(1000);
+                    $(".total").html(multiplicand * i);
+
+                    aud.play();
+                    //Drawing curve line
+                    if (i == 1) {
+                        var sv = '<svg class="svg"  width="' + ((multiplicand * 10) + 1) + '%" height="21%" style="left:' + svgLeft + '%"><path class="linePath" d="M -10 153 q ' + ((145 * multiplicand) / 2) + ' -300 ' + ((145 * multiplicand) +10) + ' 0" stroke="black" stroke-width="3" fill="none" stroke-dasharray="3,3" /></svg>';
+
+                        $(".wall").append(sv).fadeIn();
+                        svgLeft += (((multiplicand * 10) * (i)));
+                        leftNum += 1;
+                    }
+                    else {
+                        var sv = '<svg class="svg"  width="' + ((multiplicand * 10) + 1) + '%" height="21%" style="left:' + svgLeft + '%"><path class="linePath" d="M -10 153 q ' + ((145 * multiplicand) / 2) + ' -300 ' + ((145 * multiplicand)+10) + ' 0" stroke="black" stroke-width="3" fill="none" stroke-dasharray="3,3" /></svg>';
+                        $(".wall").append(sv);
+                        
+                        svgLeft += (multiplicand * 10);
+                        leftNum += 1;
+                    }
+                    var stepNumber = "<span class='step' id='step" + srNumber + "'>" + i + "</span>";
+                    $(".wall").append(stepNumber);
+                    if (i == 1) {
+                        $('#' + 'arc' + srNumber).css("left", (left - 3) + '%');
+                        $('#step' + srNumber).css("left", (left + ((multiplicand * 10) / 2)) + '%').fadeIn(1000);
+                    }
+                    else {
+                        $('#' + 'arc' + srNumber).css("left", (left - 13) + '%');
+                        //alert((left - 10) + ((multiplicand * 10) / 2));
+                        $('#step' + srNumber).css("left", (left - 10) + ((multiplicand * 10) / 2) + '%').fadeIn(1000);
+                    }
+                    //Printing step number
+
+
+
+
+                    $('#num' + (srNumber - 1)).animate({ color: '#803B00', fontSize: 150 + '%', left: '-=' + .1 + '%' }, 100);
+
+
+                });
+
+                setTimeout(function () {
+                    if (i == 1) {
+                        left += (multiplicand * 10) + 10;
+                    }
+                    else {
+                        left += (multiplicand * 10);
+                    }
+
+                    multiplier -= 1;
+                    i += 1;
+                    myAni(i, width, left, multiplicand, multiplier, srNumber, svgLeft, leftNum);
+                }, 1700);
+            }
+            if (multiplier == 0) {
+                setTimeout(function () {
+                    var finish = document.getElementById("completed");
+                    $(".total").animate({ fontSize: '5em', left: '-=2%' }, 300);
+                    finish.play();
+                }, 1000)
+            }
+        }
+        $("button").click(function () {
+            if ($("#txtMultiplier").val() == '' || $("#txtMultiplicand").val() == '') {
+                alert("Both fields are compulsory.");
+                return false;
+            }
+            else if (isNaN($("#txtMultiplier").val()) || isNaN($("#txtMultiplicand").val())) {
+                alert("Enter numeric values.");
+                return false;
+            }
+            else if (parseInt($("#txtMultiplier").val()) <= 0 || parseInt($("#txtMultiplicand").val()) <= 0) {
+                alert("Enter valid input.");
+                return false;
+            }
+            //Reseting previous values
+            $(".wall").html('');
+            $(".rabit").css('left', -4 + '%');
+            $(".total").animate({ left: '47.5%', fontSize: '3em', display: 'none' });
+            $(".total").html('');
+            //New code starts from here
+            var width = 24;
+            var multiplier = parseInt($("#txtMultiplier").val());
+            var multiplicand = parseInt($("#txtMultiplicand").val());
+            var interval = 1600;
+            var left = 4.3;
+            var i = 1;
+            var srNumber = 0;
+
+            myAni(i, width, left, multiplicand, multiplier, srNumber, left, 0);
+
+        });
+        
+    </script>
+</body>
+</html>
